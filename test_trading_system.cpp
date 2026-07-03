@@ -21,7 +21,7 @@ TEST(TradingSystemTest, SelectStockBrocker_DoesNotThrow_ForSupportedBrockers) {
 TEST(TradingSystemTest, BuyNiceTiming_BuysMaxQuantityAtLastPrice_WhenPriceRisesThreeTimes) {
 	MockStockBrocker mockBrocker;
 	TradingSystem tradingSystem;
-	tradingSystem.setBrocker(&mockBrocker);
+	tradingSystem.setStockBrocker(&mockBrocker);
 
 	const std::string stockCode = "005930";
 	const int totalAmount = 100000;
@@ -44,7 +44,7 @@ TEST(TradingSystemTest, BuyNiceTiming_BuysMaxQuantityAtLastPrice_WhenPriceRisesT
 TEST(TradingSystemTest, SellNiceTiming_SellsGivenQuantityAtLastPrice_WhenPriceFallsThreeTimes) {
 	MockStockBrocker mockBrocker;
 	TradingSystem tradingSystem;
-	tradingSystem.setBrocker(&mockBrocker);
+	tradingSystem.setStockBrocker(&mockBrocker);
 
 	const std::string stockCode = "005930";
 	const int quantity = 10;
