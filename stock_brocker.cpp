@@ -16,12 +16,14 @@ public:
     }
 
     void buy(std::string stockCode, int price, int count) override {
+        KiwerApi.buy(stockCode, price, count);
     }
 
     void sell(std::string stockCode, int price, int count) override {
     }
 
     int getPrice(std::string stockCode) override {
+        return 0;
     }
 };
 
@@ -35,11 +37,13 @@ public:
     }
 
     void buy(std::string stockCode, int price, int count) override {
+        NemoApi.purchasingStock(stockCode, price, count);
     }
 
     void sell(std::string stockCode, int price, int count) override {
     }
 
     int getPrice(std::string stockCode) override {
+        return 0;
     }
 };
