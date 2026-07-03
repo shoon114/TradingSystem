@@ -1,4 +1,4 @@
-#include <string>
+﻿#include <string>
 #include <iostream>
 #include "stock_brocker.h"
 #include "kiwer_api.cpp"
@@ -24,7 +24,7 @@ public:
     }
 
     int getPrice(std::string stockCode) override {
-        return 0;
+        return KiwerApi.currentPrice(stockCode);
     }
 };
 
@@ -32,6 +32,7 @@ public:
 class NemoStock : public StockBrocker {
 private:
     NemoAPI NemoApi; // NemoAPI 객체를 내부 멤버로 가짐
+    const int MIN_SLEEP_TIME = 1;
 public:
     void login(std::string id, std::string pass) override {
         NemoApi.certification(id, pass);
@@ -45,6 +46,6 @@ public:
     }
 
     int getPrice(std::string stockCode) override {
-        return 0;
+        return NemoApi.getMarketPrice(stockCode, MIN_SLEEP_TIME);
     }
 };

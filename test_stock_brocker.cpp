@@ -1,7 +1,7 @@
-#include<iostream>
+﻿#include<iostream>
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "stock_brocker.h"
+#include "stock_brocker.cpp"
 #include "trading_system.h"
 
 using ::testing::Return;
@@ -80,4 +80,22 @@ TEST(StockBrockerInterfaceTest, GetPrice_ReturnsConfiguredPrice) {
 	int price = brocker.getPrice("005930");
 
 	EXPECT_EQ(price, 70000);
+}
+
+TEST(KiwerStockTest, GetPriceInRange)
+{
+	KiwerStock brocker;
+
+	int price = brocker.getPrice("005930");
+
+	EXPECT_THAT(price, testing::AllOf(testing::Ge(5000), testing::Lt(6000)));
+}
+
+TEST(NemoStockTest, GetPriceInRange)
+{
+	NemoStock brocker;
+
+	int price = brocker.getPrice("005930");
+
+	EXPECT_THAT(price, testing::AllOf(testing::Ge(5000), testing::Lt(6000)));
 }
