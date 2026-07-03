@@ -1,6 +1,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "stock_brocker.h"
+#include "trading_system.h"
 
 using ::testing::Return;
 
@@ -38,10 +39,12 @@ TEST(StockBrockerInterfaceTest, Buy_CallsWithGivenCodePriceCount) {
 // - 종목코드, 가격, 수량을 인자로 전달하면 정확히 1회 호출되어야 한다.
 TEST(StockBrockerInterfaceTest, Sell_CallsWithGivenCodePriceCount) {
 	MockStockBrocker brocker;
+	TradingSystem tradingSystem;
+	tradingSystem.setStockBrocker(&brocker);
 
 	EXPECT_CALL(brocker, sell("005930", 70000, 10)).Times(1);
 
-	brocker.sell("005930", 70000, 10);
+	tradingSystem.sell("005930", 70000, 10);
 }
 
 // StockBrocker::getPrice
