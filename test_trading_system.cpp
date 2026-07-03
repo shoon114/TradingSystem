@@ -2,6 +2,9 @@
 #include "gtest/gtest.h"
 #include "trading_system.h"
 #include "mock_stock_brocker.h"
+#include "OrderCommand.h"
+#include <memory>
+#include <chrono>
 
 using namespace testing;
 
@@ -58,4 +61,16 @@ TEST(TradingSystemTest, SellNiceTiming_SellsGivenQuantityAtLastPrice_WhenPriceFa
 	EXPECT_CALL(mockBrocker, sell(stockCode, 5000, quantity)).Times(1);
 
 	tradingSystem.sellNiceTiming(stockCode, quantity);
+}
+
+// TradingSystem::ScheduleOrder
+// - 주문(BuyOrder/SellOrder)과 실행시각을 전달하면 예외 없이 예약되어야 한다.
+// - 실제 큐 관리, 실행, 로깅은 내부 OrderScheduler가 담당하며,
+//   TradingSystem이 이를 어떻게 소유/연결하는지는 구현 담당자가 자유롭게 결정한다.
+TEST(TradingSystemTest, ScheduleOrder_DoesNotThrow_WhenGivenValidOrderAndTime) {
+	TradingSystem tradingSystem;
+	auto order = std::make_shared<BuyOrder>("005930", 70000, 10);
+	auto executeTime = std::chrono::system_clock::now() + std::chrono::seconds(1);
+
+	EXPECT_NO_THROW(tradingSystem.ScheduleOrder(order, executeTime));
 }
