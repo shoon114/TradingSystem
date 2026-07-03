@@ -33,3 +33,13 @@ TEST(StockBrockerInterfaceTest, Buy_CallsWithGivenCodePriceCount) {
 
 	brocker.buy("005930", 70000, 10);
 }
+
+// StockBrocker::sell
+// - 종목코드, 가격, 수량을 인자로 전달하면 정확히 1회 호출되어야 한다.
+TEST(StockBrockerInterfaceTest, Sell_CallsWithGivenCodePriceCount) {
+	MockStockBrocker brocker;
+
+	EXPECT_CALL(brocker, sell("005930", 70000, 10)).Times(1);
+
+	brocker.sell("005930", 70000, 10);
+}
