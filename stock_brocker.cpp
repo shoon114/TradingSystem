@@ -46,6 +46,6 @@ public:
     }
 
     int getPrice(std::string stockCode) override {
-        NemoApi.getMarketPrice(stockCode, MIN_SLEEP_TIME);
+        return NemoApi.getMarketPrice(stockCode, MIN_SLEEP_TIME);
     }
 };
