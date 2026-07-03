@@ -42,7 +42,7 @@ private:
     KiwerAPI KiwerApi; // Kiwer API 객체
 public:
     void login(std::string id, std::string pass) override;
-    void buy(std::string stockCode, int price, int count) override;
+    void doBuy(std::string stockCode, int price, int count) override;
     void sell(std::string stockCode, int price, int count) override;
     int getPrice(std::string stockCode) override;
 };
@@ -53,7 +53,7 @@ private:
     const int MIN_SLEEP_TIME = 1;
 public:
     void login(std::string id, std::string pass) override;
-    void buy(std::string stockCode, int price, int count) override;
+    void doBuy(std::string stockCode, int price, int count) override;
     void sell(std::string stockCode, int price, int count) override;
     int getPrice(std::string stockCode) override;
 };

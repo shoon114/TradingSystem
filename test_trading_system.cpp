@@ -33,7 +33,7 @@ TEST(TradingSystemTest, BuyNiceTiming_BuysMaxQuantityAtLastPrice_WhenPriceRisesT
 		.WillOnce(Return(5200));
 
 	// quantity = totalAmount / lastPrice = 100000 / 5200 = 19
-	EXPECT_CALL(mockBrocker, buy(stockCode, 5200, 19)).Times(1);
+	EXPECT_CALL(mockBrocker, doBuy(stockCode, 5200, 19)).Times(1);
 
 	tradingSystem.buyNiceTiming(stockCode, totalAmount);
 }
