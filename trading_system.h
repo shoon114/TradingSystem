@@ -2,16 +2,26 @@
 #include <chrono>
 #include <iostream>
 #include <string>
+#include <stdexcept>
 #include <thread>
 #include "stock_brocker.h"
+
+using std::string;
 
 class TradingSystem {
 public:
 	void setStockBrocker(StockBrocker* brocker) {
 		stockBrocker = brocker;
 	}
+	void setBrocker(StockBrocker* brocker) {
+		stockBrocker = brocker;
+	}
+
 	StockBrocker* selectStockBrocker(std::string brockerName) {
-		return nullptr;
+    	if (!(brockerName == "KIWER" || brockerName == "NEMO")) {
+			throw std::invalid_argument("제공하지 않는 증권사 입니다. " + brockerName);
+		}
+		return stockBrocker;
 	}
 	void buy(std::string stockCode, int price, int count) {
 		stockBrocker->buy(stockCode, price, count);
@@ -34,6 +44,7 @@ public:
 	void sell(std::string stockCode, int price, int count) {
 		stockBrocker->sell(stockCode, price, count);
 	}
+
 	void sellNiceTiming(std::string stockCode, int count) {
 		if (!stockBrocker) return;
 
