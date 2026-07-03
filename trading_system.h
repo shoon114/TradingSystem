@@ -14,14 +14,20 @@ public:
 	void setBrocker(StockBrocker* brocker) {
 		stockBrocker = brocker;
 	}
-	void selectStockBrocker(string ApiName) {
-		if (!(ApiName == "KIWER" || ApiName == "NEMO")) {
-			throw std::invalid_argument("Áö¿øÇÏÁö ¾Ê´Â Áõ±Ç»çÀÔ´Ï´Ù: " + ApiName);
-		}
-	}
 
 	void buy(std::string stockCode, int price, int count) {
 		stockBrocker->buy(stockCode, price, count);
+	}
+	StockBrocker* selectStockBrocker(std::string brockerName) {
+    	if (!(brockerName == "KIWER" || brockerName == "NEMO")) {
+			throw std::invalid_argument("ì œê³µí•˜ì§€ ì•ŠëŠ” ì¦ê¶Œì‚¬ ìž…ë‹ˆë‹¤. " + brockerName);
+		}
+		return stockBrocker;
+	}
+	void buy(std::string stockCode, int price, int count) {
+		stockBrocker->buy(stockCode, price, count);
+	}
+	void buyNiceTiming(std::string stockCode, int totalCount) {
 	}
 	void sell(std::string stockCode, int price, int count) {
 		stockBrocker->sell(stockCode, price, count);

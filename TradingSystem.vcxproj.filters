@@ -47,5 +47,8 @@
     <ClInclude Include="stock_brocker.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="trading_system.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
