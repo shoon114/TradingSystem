@@ -16,6 +16,25 @@ TEST(StockBrockerInterfaceTest, Login_CallsWithGivenIdAndPassword) {
 	brocker.login("testId", "testPass");
 }
 
+// StockBrocker::login - 에러 핸들링
+// - id가 빈 문자열이면 std::invalid_argument가 전파되어야 한다.
+TEST(StockBrockerInterfaceTest, Login_Throws_WhenIdIsEmpty) {
+	MockStockBrocker brocker;
+	ON_CALL(brocker, login("", "testPass"))
+		.WillByDefault(::testing::Throw(std::invalid_argument("id must not be empty")));
+
+	EXPECT_THROW(brocker.login("", "testPass"), std::invalid_argument);
+}
+
+// - password가 빈 문자열이면 std::invalid_argument가 전파되어야 한다.
+TEST(StockBrockerInterfaceTest, Login_Throws_WhenPasswordIsEmpty) {
+	MockStockBrocker brocker;
+	ON_CALL(brocker, login("testId", ""))
+		.WillByDefault(::testing::Throw(std::invalid_argument("password must not be empty")));
+
+	EXPECT_THROW(brocker.login("testId", ""), std::invalid_argument);
+}
+
 // StockBrocker::buy
 // - 종목코드, 가격, 수량을 인자로 전달하면 정확히 1회 호출되어야 한다.
 
