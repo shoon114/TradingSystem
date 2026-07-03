@@ -1,4 +1,4 @@
-#include <string>
+﻿#include <string>
 #include <iostream>
 #include "stock_brocker.h"
 #include "kiwer_api.cpp"
@@ -22,6 +22,7 @@ public:
     }
 
     int getPrice(std::string stockCode) override {
+        return KiwerApi.currentPrice(stockCode);
     }
 };
 
@@ -41,5 +42,6 @@ public:
     }
 
     int getPrice(std::string stockCode) override {
+        return NemoApi.getMarketPrice(stockCode, 1);
     }
 };
