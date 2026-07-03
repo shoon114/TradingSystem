@@ -22,6 +22,7 @@ public:
     }
 
     int getPrice(std::string stockCode) override {
+        return 0;
     }
 };
 
@@ -41,5 +42,6 @@ public:
     }
 
     int getPrice(std::string stockCode) override {
+        return 0;
     }
 };

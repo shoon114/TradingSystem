@@ -3,7 +3,7 @@
 #include "trading_system.h"
 #include "mock_stock_brocker.h"
 
-using ::testing::Return;
+using namespace testing;
 
 // TradingSystem::selectStockBrocker
 // - 지원하는 증권사(예: "KIWER", "NEMO")를 선택하면 예외 없이 동작해야 한다.
