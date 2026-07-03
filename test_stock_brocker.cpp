@@ -176,6 +176,26 @@ TEST(StockBrockerInterfaceTest, GetPrice_ReturnsConfiguredPrice) {
 	EXPECT_EQ(price, 70000);
 }
 
+// StockBrocker::getPrice - 에러 핸들링
+// - 종목코드가 빈 문자열이면 std::invalid_argument가 전파되어야 한다.
+TEST(StockBrockerInterfaceTest, GetPrice_Throws_WhenStockCodeIsEmpty) {
+	MockStockBrocker brocker;
+	ON_CALL(brocker, getPrice(""))
+		.WillByDefault(::testing::Throw(std::invalid_argument("stockCode must not be empty")));
+
+	EXPECT_THROW(brocker.getPrice(""), std::invalid_argument);
+}
+
+// - 종목코드는 정상이지만 외부 증권사 API가 시세 조회를 거부(존재하지 않는 종목, 통신 오류 등)하면
+//   std::runtime_error가 전파되어야 한다.
+TEST(StockBrockerInterfaceTest, GetPrice_Throws_WhenExternalApiRejectsGetPrice) {
+	MockStockBrocker brocker;
+	ON_CALL(brocker, getPrice("005930"))
+		.WillByDefault(::testing::Throw(std::runtime_error("getPrice failed: rejected by broker")));
+
+	EXPECT_THROW(brocker.getPrice("005930"), std::runtime_error);
+}
+
 TEST(KiwerStockTest, GetPriceInRange)
 {
 	KiwerStock brocker;
