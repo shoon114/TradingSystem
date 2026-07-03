@@ -15,16 +15,16 @@ public:
         KiwerApi.login(id, pass); // 어댑터가 내부 API 호출
     }
 
-    void buy(std::string stockCode, int price, int count) override {
-        KiwerApi.buy(stockCode, price, count);
-
-    }
-
     void sell(std::string stockCode, int price, int count) override {
     }
 
     int getPrice(std::string stockCode) override {
         return KiwerApi.currentPrice(stockCode);
+    }
+
+protected:
+    void doBuy(std::string stockCode, int price, int count) override {
+        KiwerApi.buy(stockCode, count, price);
     }
 };
 
@@ -38,14 +38,15 @@ public:
         NemoApi.certification(id, pass);
     }
 
-    void buy(std::string stockCode, int price, int count) override {
-        NemoApi.purchasingStock(stockCode, price, count);
-    }
-
     void sell(std::string stockCode, int price, int count) override {
     }
 
     int getPrice(std::string stockCode) override {
         return NemoApi.getMarketPrice(stockCode, MIN_SLEEP_TIME);
+    }
+
+protected:
+    void doBuy(std::string stockCode, int price, int count) override {
+        NemoApi.purchasingStock(stockCode, price, count);
     }
 };
