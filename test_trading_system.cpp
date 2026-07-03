@@ -170,6 +170,37 @@ TEST(TradingSystemStrategyTest, SellNiceTiming_DoesNotSell_WhenStrategyShouldSel
 	tradingSystem.sellNiceTiming(stockCode, quantity);
 }
 
+// TradingSystem::setStrategy
+// - setStrategy()는 런타임에 언제든지 다른 전략으로 교체할 수 있어야 한다.
+//   교체 후 buyNiceTiming을 호출하면, 이전 전략이 아니라 새로 설정된
+//   전략의 shouldBuy(priceHistory) 판단을 따라야 한다.
+TEST(TradingSystemStrategyTest, SetStrategy_ReplacesStrategyAtRuntime) {
+	MockStockBrocker mockBrocker;
+	MockTimingStrategy oldStrategy;
+	MockTimingStrategy newStrategy;
+	TradingSystem tradingSystem;
+	tradingSystem.setStockBrocker(&mockBrocker);
+
+	const std::string stockCode = "005930";
+	const int totalAmount = 100000;
+
+	tradingSystem.setStrategy(&oldStrategy);
+	tradingSystem.setStrategy(&newStrategy);
+
+	EXPECT_CALL(mockBrocker, getPrice(stockCode))
+		.Times(3)
+		.WillOnce(Return(5000))
+		.WillOnce(Return(5100))
+		.WillOnce(Return(5200));
+
+	EXPECT_CALL(oldStrategy, shouldBuy(_)).Times(0);
+	EXPECT_CALL(newStrategy, shouldBuy(std::vector<int>{5000, 5100, 5200}))
+		.WillOnce(Return(true));
+	EXPECT_CALL(mockBrocker, doBuy(stockCode, 5200, 19)).Times(1);
+
+	tradingSystem.buyNiceTiming(stockCode, totalAmount);
+}
+
 // TradingSystem::ScheduleOrder
 // - 주문(BuyOrder/SellOrder)과 실행시각을 전달하면 예외 없이 예약되어야 한다.
 // - 실제 큐 관리, 실행, 로깅은 내부 OrderScheduler가 담당하며,
