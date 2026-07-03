@@ -37,3 +37,25 @@ TEST(TradingSystemTest, BuyNiceTiming_BuysMaxQuantityAtLastPrice_WhenPriceRisesT
 
 	tradingSystem.buyNiceTiming(stockCode, totalAmount);
 }
+
+// TradingSystem::sellNiceTiming
+// - 200ms 주기로 3회 가격을 읽어 3회 연속 하락 추세이면,
+//   사용자가 설정한 수량을 마지막 가격으로 모두 매도해야 한다.
+TEST(TradingSystemTest, SellNiceTiming_SellsGivenQuantityAtLastPrice_WhenPriceFallsThreeTimes) {
+	MockStockBrocker mockBrocker;
+	TradingSystem tradingSystem;
+	tradingSystem.setBrocker(&mockBrocker);
+
+	const std::string stockCode = "005930";
+	const int quantity = 10;
+
+	EXPECT_CALL(mockBrocker, getPrice(stockCode))
+		.Times(3)
+		.WillOnce(Return(5200))
+		.WillOnce(Return(5100))
+		.WillOnce(Return(5000));
+
+	EXPECT_CALL(mockBrocker, sell(stockCode, 5000, quantity)).Times(1);
+
+	tradingSystem.sellNiceTiming(stockCode, quantity);
+}
