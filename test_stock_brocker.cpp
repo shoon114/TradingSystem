@@ -1,11 +1,12 @@
-﻿#include<iostream>
+#include<iostream>
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "mock_stock_brocker.h"
 #include "trading_system.h"
-#include "stock_brocker.cpp"
+#include "stock_brocker.h"
 
 using ::testing::Return;
+
 
 // StockBrocker::login
 // - id, pass를 인자로 전달하면 정확히 1회 호출되어야 한다.
@@ -49,40 +50,45 @@ TEST(StockBrockerInterfaceTest, Login_Throws_WhenExternalApiRejectsLogin) {
 // StockBrocker::buy
 // - 종목코드, 가격, 수량을 인자로 전달하면 정확히 1회 호출되어야 한다.
 
-TEST(KiwerStockTest, Buy_DelegatesToKiwerApiWithCorrectArgs) {
+class BuyFixture : public testing::Test {
+public:
+	void run(StockBrocker& stockBrocker, std::string stockCode, int price, int count,
+		const std::string& expected) {
+
+		std::ostringstream oss;
+		std::streambuf* oldCoutStreamBuf = std::cout.rdbuf(oss.rdbuf());
+
+		stockBrocker.buy(stockCode, price, count);
+
+		std::cout.rdbuf(oldCoutStreamBuf);
+
+		EXPECT_EQ(oss.str(), expected);
+	}
+	std::string getKiwerBuyString(const std::string& stockCode, int price, int count)
+	{
+		return stockCode + " : Buy stock ( " + std::to_string(price) + " * " + std::to_string(count) + ")\n";
+	}
+	std::string getNemoBuyString(const std::string& stockCode, int price, int count)
+	{
+		return "[NEMO]" + stockCode + " buy stock ( price : " + std::to_string(price) + " ) * ( count : " + std::to_string(count) + ")\n";
+	}
+};
+TEST_F(BuyFixture, Buy_DelegatesToKiwerApiWithCorrectArgs) {
 	KiwerStock kiwerStock;
-
-	std::ostringstream oss;
-	auto oldCoutStreamBuf = std::cout.rdbuf(oss.rdbuf());
-	std::string stockCode = "005930";
-	int price = 70000;
-	int count = 10;
-	kiwerStock.buy(stockCode, price, count);
-
-	std::cout.rdbuf(oldCoutStreamBuf);
-	std::string expect = "";
-	EXPECT_EQ(oss.str(), stockCode + " : Buy stock ( " + std::to_string(count) + " * " + std::to_string(price) + ")\n");
+	run(kiwerStock, "005930", 70000, 10, getKiwerBuyString("005930", 70000, 10));
 }
-TEST(NemoStockTest, Buy_DelegatesToNemoApiWithCorrectArgs) {
+
+TEST_F(BuyFixture, Buy_DelegatesToNemoApiWithCorrectArgs) {
 	NemoStock nemoStock;
-
-	std::ostringstream oss;
-	std::streambuf* oldCoutStreamBuf = std::cout.rdbuf(oss.rdbuf());
-	std::string stockCode = "005930";
-	int price = 70000;
-	int count = 10;
-	nemoStock.buy(stockCode, price, count);
-
-	std::cout.rdbuf(oldCoutStreamBuf);   // 검증 전에 먼저 복구
-	EXPECT_EQ(oss.str(), std::string{ "[NEMO]"+ stockCode +" buy stock ( price : "+ std::to_string(price) +" ) * ( count : "+ std::to_string(count) +")\n" });
+	run(nemoStock, "005930", 70000, 10, getNemoBuyString("005930", 70000, 10));
 }
 
 // StockBrocker::buy - 에러 핸들링
 // - 종목코드가 빈 문자열이면 std::invalid_argument가 전파되어야 한다.
 TEST(StockBrockerInterfaceTest, Buy_Throws_WhenStockCodeIsEmpty) {
 	MockStockBrocker brocker;
-	ON_CALL(brocker, buy("", 70000, 10))
-		.WillByDefault(::testing::Throw(std::invalid_argument("stockCode must not be empty")));
+
+	EXPECT_CALL(brocker, doBuy(::testing::_, ::testing::_, ::testing::_)).Times(0);
 
 	EXPECT_THROW(brocker.buy("", 70000, 10), std::invalid_argument);
 }
@@ -90,8 +96,7 @@ TEST(StockBrockerInterfaceTest, Buy_Throws_WhenStockCodeIsEmpty) {
 // - 가격이 0 이하이면 std::invalid_argument가 전파되어야 한다.
 TEST(StockBrockerInterfaceTest, Buy_Throws_WhenPriceIsNotPositive) {
 	MockStockBrocker brocker;
-	ON_CALL(brocker, buy("005930", 0, 10))
-		.WillByDefault(::testing::Throw(std::invalid_argument("price must be positive")));
+	EXPECT_CALL(brocker, doBuy(::testing::_, ::testing::_, ::testing::_)).Times(0);
 
 	EXPECT_THROW(brocker.buy("005930", 0, 10), std::invalid_argument);
 }
@@ -99,8 +104,7 @@ TEST(StockBrockerInterfaceTest, Buy_Throws_WhenPriceIsNotPositive) {
 // - 수량이 0 이하이면 std::invalid_argument가 전파되어야 한다.
 TEST(StockBrockerInterfaceTest, Buy_Throws_WhenCountIsNotPositive) {
 	MockStockBrocker brocker;
-	ON_CALL(brocker, buy("005930", 70000, 0))
-		.WillByDefault(::testing::Throw(std::invalid_argument("count must be positive")));
+	EXPECT_CALL(brocker, doBuy(::testing::_, ::testing::_, ::testing::_)).Times(0);
 
 	EXPECT_THROW(brocker.buy("005930", 70000, 0), std::invalid_argument);
 }
@@ -109,10 +113,16 @@ TEST(StockBrockerInterfaceTest, Buy_Throws_WhenCountIsNotPositive) {
 //   std::runtime_error가 전파되어야 한다.
 TEST(StockBrockerInterfaceTest, Buy_Throws_WhenExternalApiRejectsBuy) {
 	MockStockBrocker brocker;
-	ON_CALL(brocker, buy("005930", 70000, 10))
-		.WillByDefault(::testing::Throw(std::runtime_error("buy failed: rejected by broker")));
+	EXPECT_CALL(brocker, doBuy("005930", 70000, 10))
+		.WillOnce(::testing::Throw(std::runtime_error("insufficient balance")));
 
-	EXPECT_THROW(brocker.buy("005930", 70000, 10), std::runtime_error);
+	try {
+		brocker.buy("005930", 70000, 10);
+		FAIL();
+	}
+	catch (const std::runtime_error& e) {
+		EXPECT_EQ(std::string(e.what()), "buy failed: rejected by broker");
+	}
 }
 
 // StockBrocker::sell
