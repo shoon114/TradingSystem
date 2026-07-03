@@ -35,6 +35,16 @@ TEST(StockBrockerInterfaceTest, Login_Throws_WhenPasswordIsEmpty) {
 	EXPECT_THROW(brocker.login("testId", ""), std::invalid_argument);
 }
 
+// - id, pass 형식은 정상이지만 외부 증권사 API가 로그인을 거부(인증 실패, 통신 오류 등)하면
+//   std::runtime_error가 전파되어야 한다.
+TEST(StockBrockerInterfaceTest, Login_Throws_WhenExternalApiRejectsLogin) {
+	MockStockBrocker brocker;
+	ON_CALL(brocker, login("testId", "wrongPass"))
+		.WillByDefault(::testing::Throw(std::runtime_error("login failed: rejected by broker")));
+
+	EXPECT_THROW(brocker.login("testId", "wrongPass"), std::runtime_error);
+}
+
 // StockBrocker::buy
 // - 종목코드, 가격, 수량을 인자로 전달하면 정확히 1회 호출되어야 한다.
 
