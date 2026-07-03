@@ -1,8 +1,9 @@
+#include<iostream>
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "stock_brocker.h"
-#include<iostream>
-#include "stock_brocker.cpp"
+#include "trading_system.h"
+
 using ::testing::Return;
 
 // StockBrocker interface를 검증하기 위한 Mock 구현체
@@ -61,10 +62,12 @@ TEST(NemoStockTest, Buy_DelegatesToNemoApiWithCorrectArgs) {
 // - 종목코드, 가격, 수량을 인자로 전달하면 정확히 1회 호출되어야 한다.
 TEST(StockBrockerInterfaceTest, Sell_CallsWithGivenCodePriceCount) {
 	MockStockBrocker brocker;
+	TradingSystem tradingSystem;
+	tradingSystem.setStockBrocker(&brocker);
 
 	EXPECT_CALL(brocker, sell("005930", 70000, 10)).Times(1);
 
-	brocker.sell("005930", 70000, 10);
+	tradingSystem.sell("005930", 70000, 10);
 }
 
 // StockBrocker::getPrice

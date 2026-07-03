@@ -17,6 +17,7 @@ public:
 
     void buy(std::string stockCode, int price, int count) override {
         KiwerApi.buy(stockCode, price, count);
+
     }
 
     void sell(std::string stockCode, int price, int count) override {
