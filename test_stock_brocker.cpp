@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 #include "mock_stock_brocker.h"
 #include "trading_system.h"
-#include "stock_brocker.cpp"
+#include "stock_brocker.h"
 #include "test_stock_brocker.h"
 using ::testing::Return;
 
