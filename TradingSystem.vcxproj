@@ -162,9 +162,6 @@
     <ClInclude Include="stock_brocker.h" />
     <ClInclude Include="trading_system.h" />
   </ItemGroup>
-<ItemGroup>
-    <ClInclude Include="trading_system.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\gmock.1.11.0\build\native\gmock.targets" Condition="Exists('packages\gmock.1.11.0\build\native\gmock.targets')" />
