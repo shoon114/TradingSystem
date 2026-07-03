@@ -43,3 +43,15 @@ TEST(StockBrockerInterfaceTest, Sell_CallsWithGivenCodePriceCount) {
 
 	brocker.sell("005930", 70000, 10);
 }
+
+// StockBrocker::getPrice
+// - 종목코드를 인자로 전달하면, 설정된 현재가를 반환해야 한다.
+TEST(StockBrockerInterfaceTest, GetPrice_ReturnsConfiguredPrice) {
+	MockStockBrocker brocker;
+
+	EXPECT_CALL(brocker, getPrice("005930")).WillOnce(Return(70000));
+
+	int price = brocker.getPrice("005930");
+
+	EXPECT_EQ(price, 70000);
+}
