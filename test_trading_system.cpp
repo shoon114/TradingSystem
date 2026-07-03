@@ -1,6 +1,9 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "trading_system.h"
+#include "mock_stock_brocker.h"
+
+using ::testing::Return;
 
 // TradingSystem::selectStockBrocker
 // - 지원하는 증권사(예: "KIWER", "NEMO")를 선택하면 예외 없이 동작해야 한다.
@@ -10,4 +13,27 @@ TEST(TradingSystemTest, SelectStockBrocker_DoesNotThrow_ForSupportedBrockers) {
 
 	EXPECT_NO_THROW(tradingSystem.selectStockBrocker("KIWER"));
 	EXPECT_NO_THROW(tradingSystem.selectStockBrocker("NEMO"));
+}
+
+// TradingSystem::buyNiceTiming
+// - 200ms 주기로 3회 가격을 읽어 3회 연속 상승 추세이면,
+//   총 금액으로 살 수 있는 최대 수량을 마지막 가격으로 매수해야 한다.
+TEST(TradingSystemTest, BuyNiceTiming_BuysMaxQuantityAtLastPrice_WhenPriceRisesThreeTimes) {
+	MockStockBrocker mockBrocker;
+	TradingSystem tradingSystem;
+	tradingSystem.setBrocker(&mockBrocker);
+
+	const std::string stockCode = "005930";
+	const int totalAmount = 100000;
+
+	EXPECT_CALL(mockBrocker, getPrice(stockCode))
+		.Times(3)
+		.WillOnce(Return(5000))
+		.WillOnce(Return(5100))
+		.WillOnce(Return(5200));
+
+	// quantity = totalAmount / lastPrice = 100000 / 5200 = 19
+	EXPECT_CALL(mockBrocker, buy(stockCode, 5200, 19)).Times(1);
+
+	tradingSystem.buyNiceTiming(stockCode, totalAmount);
 }
