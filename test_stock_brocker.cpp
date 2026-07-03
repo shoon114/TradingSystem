@@ -1,4 +1,5 @@
-﻿#include "gmock/gmock.h"
+﻿#include<iostream>
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "stock_brocker.cpp"
 #include "trading_system.h"
@@ -27,13 +28,35 @@ TEST(StockBrockerInterfaceTest, Login_CallsWithGivenIdAndPassword) {
 
 // StockBrocker::buy
 // - 종목코드, 가격, 수량을 인자로 전달하면 정확히 1회 호출되어야 한다.
-TEST(StockBrockerInterfaceTest, Buy_CallsWithGivenCodePriceCount) {
-	MockStockBrocker brocker;
 
-	EXPECT_CALL(brocker, buy("005930", 70000, 10)).Times(1);
+TEST(KiwerStockTest, Buy_DelegatesToKiwerApiWithCorrectArgs) {
+	KiwerStock kiwerStock;
 
-	brocker.buy("005930", 70000, 10);
+	std::ostringstream oss;
+	auto oldCoutStreamBuf = std::cout.rdbuf(oss.rdbuf());
+	std::string stockCode = "005930";
+	int price = 70000;
+	int count = 10;
+	kiwerStock.buy(stockCode, price, count);
+
+	std::cout.rdbuf(oldCoutStreamBuf);
+	std::string expect = "";
+	EXPECT_EQ(oss.str(), stockCode + " : Buy stock ( " + std::to_string(count) + " * " + std::to_string(price) + ")\n");
 }
+TEST(NemoStockTest, Buy_DelegatesToNemoApiWithCorrectArgs) {
+	NemoStock nemoStock;
+
+	std::ostringstream oss;
+	std::streambuf* oldCoutStreamBuf = std::cout.rdbuf(oss.rdbuf());
+	std::string stockCode = "005930";
+	int price = 70000;
+	int count = 10;
+	nemoStock.buy(stockCode, price, count);
+
+	std::cout.rdbuf(oldCoutStreamBuf);   // 검증 전에 먼저 복구
+	EXPECT_EQ(oss.str(), std::string{ "[NEMO]"+ stockCode +" buy stock ( price : "+ std::to_string(price) +" ) * ( count : "+ std::to_string(count) +")\n" });
+}
+
 
 // StockBrocker::sell
 // - 종목코드, 가격, 수량을 인자로 전달하면 정확히 1회 호출되어야 한다.
