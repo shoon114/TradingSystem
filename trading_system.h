@@ -1,6 +1,8 @@
 #pragma once
+#include <chrono>
 #include <iostream>
 #include <string>
+#include <thread>
 #include "stock_brocker.h"
 
 class TradingSystem {
@@ -18,7 +20,9 @@ public:
 		if (!stockBrocker) return;
 
 		int p1 = stockBrocker->getPrice(stockCode);
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		int p2 = stockBrocker->getPrice(stockCode);
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		int p3 = stockBrocker->getPrice(stockCode);
 
 		if (p1 < p2 && p2 < p3) {
@@ -34,7 +38,9 @@ public:
 		if (!stockBrocker) return;
 
 		int p1 = stockBrocker->getPrice(stockCode);
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		int p2 = stockBrocker->getPrice(stockCode);
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		int p3 = stockBrocker->getPrice(stockCode);
 
 		if (p1 > p2 && p2 > p3) {
