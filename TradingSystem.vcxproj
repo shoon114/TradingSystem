@@ -162,8 +162,8 @@
     <ClInclude Include="stock_brocker.h" />
     <ClInclude Include="trading_system.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+<ItemGroup>
+    <ClInclude Include="trading_system.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
