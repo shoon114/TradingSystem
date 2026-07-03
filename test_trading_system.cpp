@@ -118,6 +118,58 @@ TEST(TradingSystemStrategyTest, BuyNiceTiming_DoesNotBuy_WhenStrategyShouldBuyRe
 	tradingSystem.buyNiceTiming(stockCode, totalAmount);
 }
 
+// TradingSystem::sellNiceTiming (전략 연동)
+// - setStrategy()로 주입된 ITimingStrategy의 shouldSell(priceHistory)가 true를 반환하면,
+//   사용자가 설정한 수량을 마지막 가격으로 모두 매도해야 한다.
+TEST(TradingSystemStrategyTest, SellNiceTiming_Sells_WhenStrategyShouldSellReturnsTrue) {
+	MockStockBrocker mockBrocker;
+	MockTimingStrategy mockStrategy;
+	TradingSystem tradingSystem;
+	tradingSystem.setStockBrocker(&mockBrocker);
+	tradingSystem.setStrategy(&mockStrategy);
+
+	const std::string stockCode = "005930";
+	const int quantity = 10;
+
+	EXPECT_CALL(mockBrocker, getPrice(stockCode))
+		.Times(3)
+		.WillOnce(Return(5200))
+		.WillOnce(Return(5100))
+		.WillOnce(Return(5000));
+
+	EXPECT_CALL(mockStrategy, shouldSell(std::vector<int>{5200, 5100, 5000}))
+		.WillOnce(Return(true));
+
+	EXPECT_CALL(mockBrocker, sell(stockCode, 5000, quantity)).Times(1);
+
+	tradingSystem.sellNiceTiming(stockCode, quantity);
+}
+
+// - shouldSell(priceHistory)가 false를 반환하면 매도하지 않아야 한다.
+TEST(TradingSystemStrategyTest, SellNiceTiming_DoesNotSell_WhenStrategyShouldSellReturnsFalse) {
+	MockStockBrocker mockBrocker;
+	MockTimingStrategy mockStrategy;
+	TradingSystem tradingSystem;
+	tradingSystem.setStockBrocker(&mockBrocker);
+	tradingSystem.setStrategy(&mockStrategy);
+
+	const std::string stockCode = "005930";
+	const int quantity = 10;
+
+	EXPECT_CALL(mockBrocker, getPrice(stockCode))
+		.Times(3)
+		.WillOnce(Return(5000))
+		.WillOnce(Return(5100))
+		.WillOnce(Return(5200));
+
+	EXPECT_CALL(mockStrategy, shouldSell(std::vector<int>{5000, 5100, 5200}))
+		.WillOnce(Return(false));
+
+	EXPECT_CALL(mockBrocker, sell(_, _, _)).Times(0);
+
+	tradingSystem.sellNiceTiming(stockCode, quantity);
+}
+
 // TradingSystem::ScheduleOrder
 // - 주문(BuyOrder/SellOrder)과 실행시각을 전달하면 예외 없이 예약되어야 한다.
 // - 실제 큐 관리, 실행, 로깅은 내부 OrderScheduler가 담당하며,
