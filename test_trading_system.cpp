@@ -3,8 +3,10 @@
 #include "trading_system.h"
 #include "mock_stock_brocker.h"
 #include "OrderCommand.h"
+#include "MockTimingStrategy.h"
 #include <memory>
 #include <chrono>
+#include <vector>
 
 using namespace testing;
 
@@ -61,6 +63,59 @@ TEST(TradingSystemTest, SellNiceTiming_SellsGivenQuantityAtLastPrice_WhenPriceFa
 	EXPECT_CALL(mockBrocker, sell(stockCode, 5000, quantity)).Times(1);
 
 	tradingSystem.sellNiceTiming(stockCode, quantity);
+}
+
+// TradingSystem::buyNiceTiming (전략 연동)
+// - setStrategy()로 주입된 ITimingStrategy의 shouldBuy(priceHistory)가 true를 반환하면,
+//   3회 조회한 가격 이력을 기반으로 마지막 가격으로 최대 수량을 매수해야 한다.
+TEST(TradingSystemStrategyTest, BuyNiceTiming_Buys_WhenStrategyShouldBuyReturnsTrue) {
+	MockStockBrocker mockBrocker;
+	MockTimingStrategy mockStrategy;
+	TradingSystem tradingSystem;
+	tradingSystem.setStockBrocker(&mockBrocker);
+	tradingSystem.setStrategy(&mockStrategy);
+
+	const std::string stockCode = "005930";
+	const int totalAmount = 100000;
+
+	EXPECT_CALL(mockBrocker, getPrice(stockCode))
+		.Times(3)
+		.WillOnce(Return(5000))
+		.WillOnce(Return(5100))
+		.WillOnce(Return(5200));
+
+	EXPECT_CALL(mockStrategy, shouldBuy(std::vector<int>{5000, 5100, 5200}))
+		.WillOnce(Return(true));
+
+	// quantity = totalAmount / lastPrice = 100000 / 5200 = 19
+	EXPECT_CALL(mockBrocker, doBuy(stockCode, 5200, 19)).Times(1);
+
+	tradingSystem.buyNiceTiming(stockCode, totalAmount);
+}
+
+// - shouldBuy(priceHistory)가 false를 반환하면 매수하지 않아야 한다.
+TEST(TradingSystemStrategyTest, BuyNiceTiming_DoesNotBuy_WhenStrategyShouldBuyReturnsFalse) {
+	MockStockBrocker mockBrocker;
+	MockTimingStrategy mockStrategy;
+	TradingSystem tradingSystem;
+	tradingSystem.setStockBrocker(&mockBrocker);
+	tradingSystem.setStrategy(&mockStrategy);
+
+	const std::string stockCode = "005930";
+	const int totalAmount = 100000;
+
+	EXPECT_CALL(mockBrocker, getPrice(stockCode))
+		.Times(3)
+		.WillOnce(Return(5200))
+		.WillOnce(Return(5100))
+		.WillOnce(Return(5000));
+
+	EXPECT_CALL(mockStrategy, shouldBuy(std::vector<int>{5200, 5100, 5000}))
+		.WillOnce(Return(false));
+
+	EXPECT_CALL(mockBrocker, doBuy(_, _, _)).Times(0);
+
+	tradingSystem.buyNiceTiming(stockCode, totalAmount);
 }
 
 // TradingSystem::ScheduleOrder
