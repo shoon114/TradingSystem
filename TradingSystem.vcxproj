@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{4DE16E6B-D9F2-03FD-6F76-FAC9BE5373D3}</ProjectGuid>
+    <ProjectGuid>{0B157A49-99C7-4464-B9C4-42AB1755E7C6}</ProjectGuid>
     <RootNamespace>TradingSystem</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -160,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stock_brocker.h" />
+    <ClInclude Include="trading_system.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

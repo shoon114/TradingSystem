@@ -4,8 +4,8 @@
 #include "kiwer_api.cpp"
 #include "nemo_api.cpp"
 
-
 // 1. Kiwer 증권사 구현
+
 class KiwerStock : public StockBrocker {
 private:
 	KiwerAPI KiwerApi; // Kiwer API 객체
@@ -50,3 +50,4 @@ protected:
         NemoApi.purchasingStock(stockCode, price, count);
     }
 };
+

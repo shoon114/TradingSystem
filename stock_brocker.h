@@ -1,6 +1,11 @@
 #pragma once
+
 #include <string>
 #include <stdexcept>
+#include "kiwer_api.cpp"
+#include "nemo_api.cpp"
+
+
 // 추상 기본 클래스 (인터페이스)
 class StockBrocker {
 public:
@@ -32,3 +37,23 @@ protected:
     virtual void doBuy(std::string stockCode, int price, int count) = 0;
 };
 
+class KiwerStock : public StockBrocker {
+private:
+    KiwerAPI KiwerApi; // Kiwer API 객체
+public:
+    void login(std::string id, std::string pass) override;
+    void buy(std::string stockCode, int price, int count) override;
+    void sell(std::string stockCode, int price, int count) override;
+    int getPrice(std::string stockCode) override;
+};
+
+class NemoStock : public StockBrocker {
+private:
+    NemoAPI NemoApi; // NemoAPI 객체를 내부 멤버로 가짐
+    const int MIN_SLEEP_TIME = 1;
+public:
+    void login(std::string id, std::string pass) override;
+    void buy(std::string stockCode, int price, int count) override;
+    void sell(std::string stockCode, int price, int count) override;
+    int getPrice(std::string stockCode) override;
+};
