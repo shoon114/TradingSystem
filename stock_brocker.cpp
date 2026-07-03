@@ -8,7 +8,7 @@
 // 1. Kiwer 증권사 구현
 class KiwerStock : public StockBrocker {
 private:
-    KiwerAPI KiwerApi; // Kiwer API 객체
+	KiwerAPI KiwerApi; // Kiwer API 객체
 public:
     void login(std::string id, std::string pass) override {
         // Kiwer의 실제 API 호출
@@ -22,7 +22,6 @@ public:
     }
 
     int getPrice(std::string stockCode) override {
-        return 0;
     }
 };
 
@@ -42,6 +41,5 @@ public:
     }
 
     int getPrice(std::string stockCode) override {
-        return 0;
     }
 };

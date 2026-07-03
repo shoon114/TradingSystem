@@ -1,6 +1,5 @@
 #pragma once
-#include <string>
-
+// 추상 기본 클래스 (인터페이스)
 class StockBrocker {
 public:
     // 가상 소멸자는 상속받는 클래스에서 필수입니다.
@@ -12,3 +11,4 @@ public:
     virtual void sell(std::string stockCode, int price, int count) = 0;
     virtual int getPrice(std::string stockCode) = 0;
 };
+
