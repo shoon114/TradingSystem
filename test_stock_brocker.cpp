@@ -126,6 +126,44 @@ TEST(StockBrockerInterfaceTest, Sell_CallsWithGivenCodePriceCount) {
 	tradingSystem.sell("005930", 70000, 10);
 }
 
+// StockBrocker::sell - 에러 핸들링
+// - 종목코드가 빈 문자열이면 std::invalid_argument가 전파되어야 한다.
+TEST(StockBrockerInterfaceTest, Sell_Throws_WhenStockCodeIsEmpty) {
+	MockStockBrocker brocker;
+	ON_CALL(brocker, sell("", 70000, 10))
+		.WillByDefault(::testing::Throw(std::invalid_argument("stockCode must not be empty")));
+
+	EXPECT_THROW(brocker.sell("", 70000, 10), std::invalid_argument);
+}
+
+// - 가격이 0 이하이면 std::invalid_argument가 전파되어야 한다.
+TEST(StockBrockerInterfaceTest, Sell_Throws_WhenPriceIsNotPositive) {
+	MockStockBrocker brocker;
+	ON_CALL(brocker, sell("005930", 0, 10))
+		.WillByDefault(::testing::Throw(std::invalid_argument("price must be positive")));
+
+	EXPECT_THROW(brocker.sell("005930", 0, 10), std::invalid_argument);
+}
+
+// - 수량이 0 이하이면 std::invalid_argument가 전파되어야 한다.
+TEST(StockBrockerInterfaceTest, Sell_Throws_WhenCountIsNotPositive) {
+	MockStockBrocker brocker;
+	ON_CALL(brocker, sell("005930", 70000, 0))
+		.WillByDefault(::testing::Throw(std::invalid_argument("count must be positive")));
+
+	EXPECT_THROW(brocker.sell("005930", 70000, 0), std::invalid_argument);
+}
+
+// - 인자는 정상이지만 외부 증권사 API가 매도를 거부(보유수량 부족, 시장 마감 등)하면
+//   std::runtime_error가 전파되어야 한다.
+TEST(StockBrockerInterfaceTest, Sell_Throws_WhenExternalApiRejectsSell) {
+	MockStockBrocker brocker;
+	ON_CALL(brocker, sell("005930", 70000, 10))
+		.WillByDefault(::testing::Throw(std::runtime_error("sell failed: rejected by broker")));
+
+	EXPECT_THROW(brocker.sell("005930", 70000, 10), std::runtime_error);
+}
+
 // StockBrocker::getPrice
 // - 종목코드를 인자로 전달하면, 설정된 현재가를 반환해야 한다.
 TEST(StockBrockerInterfaceTest, GetPrice_ReturnsConfiguredPrice) {
